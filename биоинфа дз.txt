@@ -1,0 +1,28 @@
+mkdir hmw1
+cd hmw1
+Fastqc() {
+  rm -rf fastqc multiqc
+  mkdir fastqc multiqc
+  fastqc "$@" -o fastqc
+  multiqc fastqc -o multiqc
+}
+ln --symbolic /usr/share/data-minor-bioinf/assembly/oil* .
+SEED=495
+seqtk sample -s$SEED oil_R1.fastq 5000000 > sub1.fastq
+seqtk sample -s$SEED oil_R2.fastq 5000000 > sub2.fastq
+seqtk sample -s$SEED oilMP_S4_L001_R1_001.fastq 1500000 > mp1.fastq
+seqtk sample -s$SEED oilMP_S4_L001_R2_001.fastq 1500000 > mp2.fastq
+Fastqc sub*.fastq mp*.fastq
+platanus_trim sub*.fastq
+platanus_internal_trim mp*.fastq
+rm mp*.fastq sub*.fastq
+Fastqc *trimmed
+platanus assemble -f *.trimmed
+platanus scaffold -c out_contig.fa -IP1 *.trimmed -OP2 *.int_trimmed
+platanus gap_close -c out_scaffold.fa -IP1 *.trimmed -OP2 *.int_trimmed
+rm *trimmed
+scp -P ***** -r gttarasenko@**.***.58.92:/home/gttarasenko/hmw1 .
+
+Дальше у меня компуктер отказывается грузить полученные файлы, т.к. места на диске нет))
+Поэтому я не смог сделать никакой отчет!
+звездочки вставил на всякий :)
